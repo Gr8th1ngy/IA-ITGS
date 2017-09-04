@@ -3,7 +3,11 @@ package tester;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,7 +39,8 @@ class GUI extends JFrame {
 	private Test test;
 	private Read read;
 	private ActionListener listener;
-	private boolean alreadyExecuted =false;
+	private boolean alreadyExecuted = false;
+	private Process powerShellProcess;
 
 	public GUI() {
 		test = new Test();
@@ -46,7 +51,7 @@ class GUI extends JFrame {
 	private void createComponents() {
 
 		terminateButton = new JButton("Terminate");
-		
+
 		createTextArea();
 		createTestButton();
 		JPanel panel = new JPanel();
@@ -60,7 +65,7 @@ class GUI extends JFrame {
 
 	private void createTextArea() {
 		textArea = new JTextArea(ROWS, COLUMNS);
-		filePath = new JTextArea(3,40);
+		filePath = new JTextArea(3, 40);
 	}
 
 	private void createTestButton() {
@@ -73,27 +78,43 @@ class GUI extends JFrame {
 
 		public void actionPerformed(ActionEvent event) {
 			if (!alreadyExecuted) {
-			read = new Read();
+				read = new Read();
+				try {
+					read.setFilePath(filePath.getText());
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				}
+				alreadyExecuted = true;
+			}
+			List<String> list = new ArrayList<String>();
+			list.add("cmd");
+			list.add("/c");
+			list.add("start");
+			list.add("powershell.exe");
+			list.add("-Command");
+			list.add("& C:\\Users\\Admin\\eclipse-workspace\\IA-ITGS\\target\\script.ps1");
+			String[] command = list.toArray(new String[0]);
+
 			try {
-				read.setFilePath(filePath.getText());
-			} catch (FileNotFoundException e1) {
+				powerShellProcess = Runtime.getRuntime().exec(command);
+				textArea.setText("Testing...");
+				TimeUnit.SECONDS.sleep(15);
+			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				e.printStackTrace();
 			}
-			alreadyExecuted=true;
-			}
-			read.readScript();
-			textArea.append(read.getFileContent()+" ");
-			/*textArea.append(test.getCaseNo() + "\t\t");
-
-			if (test.next() == true) {
-				textArea.append("Passed\n");
-			} else {
-				textArea.append("Failed\n");
-			}
-			test.setCaseNo("2");
-			test.setResult(false);*/
-
+			textArea.setText("Test complete");
 		}
+
+		/*
+		 * read.readScript(); textArea.append(read.getFileContent()+" ");
+		 */
+		/*
+		 * textArea.append(test.getCaseNo() + "\t\t");
+		 * 
+		 * if (test.next() == true) { textArea.append("Passed\n"); } else {
+		 * textArea.append("Failed\n"); } test.setCaseNo("2"); test.setResult(false);
+		 */
+
 	}
 }
