@@ -39,6 +39,7 @@ class GUI extends JFrame {
 	private Test test;
 	private Read read;
 	private ActionListener listener;
+	private ActionListener terminateListener;
 	private boolean alreadyExecuted = false;
 	private Process powerShellProcess;
 
@@ -50,8 +51,8 @@ class GUI extends JFrame {
 
 	private void createComponents() {
 
-		terminateButton = new JButton("Terminate");
-
+		
+		createTerminateButton();
 		createTextArea();
 		createTestButton();
 		JPanel panel = new JPanel();
@@ -67,14 +68,26 @@ class GUI extends JFrame {
 		textArea = new JTextArea(ROWS, COLUMNS);
 		filePath = new JTextArea(3, 40);
 	}
-
+private void createTerminateButton() {
+	terminateButton = new JButton("Terminate");
+	terminateListener = new terminateListener();
+	terminateButton.addActionListener(terminateListener);
+}
 	private void createTestButton() {
 		testButton = new JButton("Start testing");
-		listener = new TestListener();
+		listener = new testListener();
 		testButton.addActionListener(listener);
 	}
+class terminateListener implements ActionListener{
 
-	class TestListener implements ActionListener {
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		System.exit(0);
+	}
+	
+}
+	class testListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent event) {
 			if (!alreadyExecuted) {
